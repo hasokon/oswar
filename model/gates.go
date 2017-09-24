@@ -7,45 +7,60 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+const (
+	default_limmit = 30
+)
+
 var (
-	gatesImage    *ebiten.Image
-	gatesDecisoin *image.Rectangle
-	count         int
+	count int = 0
 )
 
 type Gates struct {
 	Image     *ebiten.Image
-	DrawPoint *image.Point //Left Up
-	decision  *image.Rectangle
+	DrawPoint image.Point //Left Up
+	decision  image.Rectangle
 	ID        int
+	limmit    int
+	killed    bool
 }
 
-func NewGates(x, y int) Gates {
-	if gatesImage == nil {
-		gatesImage, _ = ebiten.NewImage(40, 40, ebiten.FilterNearest)
-		gatesImage.Fill(color.RGBA{0x0, 0x0, 0xf0, 0xff})
-
-		r := image.Rect(0, 0, 40, 40)
-		gatesDecisoin = &r
-
-		count = 0
-	}
+func NewGates(x, y int) *Gates {
+	gatesImage, _ := ebiten.NewImage(40, 40, ebiten.FilterNearest)
+	gatesImage.Fill(color.RGBA{0x0, 0x0, 0xf0, 0xff})
+	r := image.Rect(0, 0, 40, 40)
+	gatesDecisoin := &r
 
 	count++
-	dp := image.Point{x, y}
-	d := gatesDecisoin.Add(dp)
 
-	return Gates{
+	return &Gates{
 		Image:     gatesImage,
-		DrawPoint: &dp,
-		decision:  &d,
+		DrawPoint: image.Point{x, y},
+		decision:  gatesDecisoin.Add(image.Point{x, y}),
 		ID:        count,
+		limmit:    default_limmit,
+		killed:    false,
 	}
+}
+
+func (g *Gates) kill() {
+	g.killed = true
+}
+
+func (g *Gates) IsDead() bool {
+	return g.limmit <= 0
+}
+
+func (g *Gates) Update() error {
+	if g.killed {
+		g.limmit--
+		g.Image.Fill(color.RGBA{0x0, 0x0, 0xf0, uint8(0xff * g.limmit / default_limmit)})
+	}
+	return nil
 }
 
 func (g *Gates) Translation(p image.Point) {
-	g.DrawPoint.Add(p)
-	g.decision.Add(p)
+	g.DrawPoint = g.DrawPoint.Add(p)
+	g.decision = g.decision.Add(p)
 }
 
 func (g *Gates) HitDecisionToPoint(p image.Point) bool {

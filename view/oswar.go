@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
@@ -29,7 +30,7 @@ func New(screenWidth, screenHeight int) *Oswar {
 	}
 }
 
-func (o *Oswar) draw(screen *ebiten.Image) error {
+func (o *Oswar) Update(screen *ebiten.Image) error {
 	screen.DrawImage(o.images.CanvasImage, nil)
 
 	for _, gates := range o.images.GatesList {
@@ -38,6 +39,7 @@ func (o *Oswar) draw(screen *ebiten.Image) error {
 		op.ColorM.RotateHue(float64(gates.ID))
 
 		screen.DrawImage(gates.Image, op)
+		gates.Translation(image.Point{1, 1})
 	}
 	return nil
 }
@@ -45,7 +47,8 @@ func (o *Oswar) draw(screen *ebiten.Image) error {
 func (o *Oswar) GetUpdate() func(*ebiten.Image) error {
 	return func(screen *ebiten.Image) error {
 		o.mouseManager.Update()
-		o.draw(screen)
+		o.images.Update()
+		o.Update(screen)
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS : %0.2f", ebiten.CurrentFPS()))
 		return nil
 	}

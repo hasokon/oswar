@@ -11,12 +11,11 @@ type MouseEventListener struct {
 }
 
 func New() *MouseEventListener {
-	oc := MouseEventListener{
+	return &MouseEventListener{
 		lastMousePressed:        false,
 		currentMousePressed:     false,
 		mouseClickEventHandlers: make([]MouseClickEventHandler, 0),
 	}
-	return &oc
 }
 
 func (ml *MouseEventListener) isMouseClicked() bool {
@@ -30,13 +29,13 @@ func (ml *MouseEventListener) AddMouseClickEventHandler(m MouseClickEventHandler
 	ml.mouseClickEventHandlers = append(ml.mouseClickEventHandlers, m)
 }
 
-func (oc *MouseEventListener) Update() {
+func (ml *MouseEventListener) Update() {
 	x, y := ebiten.CursorPosition()
 	me := MouseEvent{x, y}
 	switch {
-	case oc.isMouseClicked():
-		for i := 0; i < len(oc.mouseClickEventHandlers); i++ {
-			oc.mouseClickEventHandlers[i].Do(me)
+	case ml.isMouseClicked():
+		for _, handler := range ml.mouseClickEventHandlers {
+			handler.Do(me)
 		}
 	}
 }
