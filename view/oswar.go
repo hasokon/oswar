@@ -13,19 +13,19 @@ type Oswar struct {
 	screenWidth  int
 	screenHeight int
 	images       *model.OswarImages
-	cont         *controller.OswarController
+	mouseManager *controller.MouseEventListener
 }
 
 func New(screenWidth, screenHeight int) *Oswar {
 	oi := model.New(screenWidth, screenHeight)
-	oc := controller.New()
-	oc.AddMouseClickEventHandler(oi)
+	mm := controller.New()
+	mm.AddMouseClickEventHandler(oi)
 
 	return &Oswar{
 		screenWidth:  screenWidth,
 		screenHeight: screenHeight,
 		images:       oi,
-		cont:         oc,
+		mouseManager: mm,
 	}
 }
 
@@ -44,7 +44,7 @@ func (o *Oswar) draw(screen *ebiten.Image) error {
 
 func (o *Oswar) GetUpdate() func(*ebiten.Image) error {
 	return func(screen *ebiten.Image) error {
-		o.cont.Update()
+		o.mouseManager.Update()
 		o.draw(screen)
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS : %0.2f", ebiten.CurrentFPS()))
 		return nil
