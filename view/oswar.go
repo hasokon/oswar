@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"image"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
@@ -10,6 +9,7 @@ import (
 	"github.com/hasokon/oswar/model"
 )
 
+// Oswar is for the game OS War's View
 type Oswar struct {
 	screenWidth  int
 	screenHeight int
@@ -17,6 +17,7 @@ type Oswar struct {
 	mouseManager *controller.MouseEventListener
 }
 
+// New create Oswar instance
 func New(screenWidth, screenHeight int) *Oswar {
 	oi := model.New(screenWidth, screenHeight)
 	mm := controller.New()
@@ -30,6 +31,7 @@ func New(screenWidth, screenHeight int) *Oswar {
 	}
 }
 
+// Update re-draw images
 func (o *Oswar) Update(screen *ebiten.Image) error {
 	screen.DrawImage(o.images.CanvasImage, nil)
 
@@ -39,11 +41,11 @@ func (o *Oswar) Update(screen *ebiten.Image) error {
 		op.ColorM.RotateHue(float64(gates.ID))
 
 		screen.DrawImage(gates.Image, op)
-		gates.Translation(image.Point{1, 1})
 	}
 	return nil
 }
 
+// GetUpdate make closer for ebiten.Run()
 func (o *Oswar) GetUpdate() func(*ebiten.Image) error {
 	return func(screen *ebiten.Image) error {
 		o.mouseManager.Update()

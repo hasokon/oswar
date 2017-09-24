@@ -1,5 +1,6 @@
 package controller
 
+// Mouse
 type MouseClickEventHandler interface {
-	Do(MouseEvent) error
+	MouseClicked(MouseEvent) error
 }

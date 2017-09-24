@@ -35,7 +35,7 @@ func (ml *MouseEventListener) Update() {
 	switch {
 	case ml.isMouseClicked():
 		for _, handler := range ml.mouseClickEventHandlers {
-			handler.Do(me)
+			handler.MouseClicked(me)
 		}
 	}
 }

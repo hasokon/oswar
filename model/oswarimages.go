@@ -8,11 +8,13 @@ import (
 	"github.com/hasokon/oswar/controller"
 )
 
+// OswarImages have all image for this game
 type OswarImages struct {
 	CanvasImage *ebiten.Image
 	GatesList   []*Gates
 }
 
+// New create OswarImages instance
 func New(canvasWidth, canvasHeight int) *OswarImages {
 	c, _ := ebiten.NewImage(canvasWidth, canvasHeight, ebiten.FilterNearest)
 	c.Fill(color.White)
@@ -26,6 +28,7 @@ func New(canvasWidth, canvasHeight int) *OswarImages {
 	}
 }
 
+// DeleteGatesByID is to delete a Gates in GatesList by ID
 func (oi *OswarImages) DeleteGatesByID(id int) {
 	newlist := make([]*Gates, 0)
 	for _, gates := range oi.GatesList {
@@ -36,6 +39,7 @@ func (oi *OswarImages) DeleteGatesByID(id int) {
 	oi.GatesList = newlist
 }
 
+// Update updates all images by time
 func (oi *OswarImages) Update() error {
 	for _, gates := range oi.GatesList {
 		gates.Update()
@@ -46,12 +50,13 @@ func (oi *OswarImages) Update() error {
 	return nil
 }
 
-func (oi *OswarImages) Do(e controller.MouseEvent) error {
+// MouseClicked is execute by clicking mouse left button
+func (oi *OswarImages) MouseClicked(e controller.MouseEvent) error {
 
 	for i := len(oi.GatesList) - 1; i >= 0; i-- {
 		gates := oi.GatesList[i]
 		if gates.HitDecisionToPoint(image.Point{e.X, e.Y}) {
-			gates.kill()
+			gates.killSoon()
 			return nil
 		}
 	}
