@@ -11,8 +11,6 @@ import (
 
 // Oswar is for the game OS War's View
 type Oswar struct {
-	screenWidth  int
-	screenHeight int
 	images       *model.OswarImages
 	mouseManager *controller.MouseEventListener
 }
@@ -24,8 +22,6 @@ func New(screenWidth, screenHeight int) *Oswar {
 	mm.AddMouseClickEventHandler(oi)
 
 	return &Oswar{
-		screenWidth:  screenWidth,
-		screenHeight: screenHeight,
 		images:       oi,
 		mouseManager: mm,
 	}
