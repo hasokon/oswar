@@ -13,21 +13,29 @@ type Oswar struct {
 }
 
 // NewOswar create Oswar instance
-func NewOswar(screenWidth, screenHeight int) *Oswar {
-	gl := NewGameLayer(screenWidth, screenHeight)
+func NewOswar(screenWidth, screenHeight int) (*Oswar, error) {
+	gl, err := NewGameLayer(screenWidth, screenHeight)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Oswar{
 		gameLayer: gl,
-	}
+	}, nil
 }
 
 // GetUpdate make closer for ebiten.Run()
 func (o *Oswar) GetUpdate() func(*ebiten.Image) error {
 	return func(screen *ebiten.Image) error {
-		o.gameLayer.Update()
+		err := o.gameLayer.Update()
+		if err != nil {
+			return err
+		}
+
 		screen.DrawImage(o.gameLayer.Canvas(), nil)
 
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS : %0.2f", ebiten.CurrentFPS()))
+		x, y := ebiten.CursorPosition()
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS : %0.2f\n(%d, %d)", ebiten.CurrentFPS(), x, y))
 		return nil
 	}
 }

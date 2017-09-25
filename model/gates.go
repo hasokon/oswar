@@ -5,14 +5,16 @@ import (
 	"image/color"
 	"math"
 
+	"github.com/hajimehoshi/ebiten/ebitenutil"
+
 	"github.com/hajimehoshi/ebiten"
 )
 
 const (
 	defaultLimmit = 30
-	SpeedDefault = 2
-	SpeedMiddle = 3
-	SpeedHigh = 4
+	SpeedDefault  = 2
+	SpeedMiddle   = 3
+	SpeedHigh     = 4
 )
 
 var (
@@ -21,33 +23,36 @@ var (
 
 // Gates is gates image class
 type Gates struct {
-	Image     *ebiten.Image
+	image     *ebiten.Image
 	DrawPoint image.Point //Left Up
 	decision  image.Rectangle
 	ID        int
-	Speed	  float64
+	Speed     float64
 	limmit    int
 	killed    bool
 }
 
 // NewGates create gates instance
-func NewGates(x, y int) *Gates {
-	gatesImage, _ := ebiten.NewImage(40, 40, ebiten.FilterNearest)
-	gatesImage.Fill(color.RGBA{0x0, 0x0, 0xf0, 0xff})
-	r := image.Rect(0, 0, 40, 40)
+func NewGates(x, y int) (*Gates, error) {
+	gatesImage, _, err := ebitenutil.NewImageFromFile("resource/gates.png", ebiten.FilterNearest)
+	if err != nil {
+		return nil, err
+	}
+
+	r := gatesImage.Bounds()
 	gatesDecisoin := &r
 
 	count++
 
 	return &Gates{
-		Image:     gatesImage,
+		image:     gatesImage,
 		DrawPoint: image.Point{x, y},
 		decision:  gatesDecisoin.Add(image.Point{x, y}),
 		ID:        count,
 		limmit:    defaultLimmit,
 		killed:    false,
 		Speed:     SpeedDefault,
-	}
+	}, nil
 }
 
 func (g *Gates) kill() {
@@ -68,7 +73,7 @@ func (g *Gates) IsDead() bool {
 func (g *Gates) UpdateImage() error {
 	if g.killed {
 		g.limmit--
-		g.Image.Fill(color.RGBA{0x0, 0x0, 0xf0, uint8(0xff * g.limmit / defaultLimmit)})
+		g.image.Fill(color.RGBA{0x0, 0x0, 0xf0, uint8(0xff * g.limmit / defaultLimmit)})
 	}
 	return nil
 }
@@ -80,11 +85,15 @@ func (g *Gates) Translation(p image.Point) {
 }
 
 func (g *Gates) CenterX() int {
-	return g.DrawPoint.X + g.Image.Bounds().Dx()
+	return g.DrawPoint.X + g.image.Bounds().Dx()/2
 }
 
 func (g *Gates) CenterY() int {
-	return g.DrawPoint.Y + g.Image.Bounds().Dy()
+	return g.DrawPoint.Y + g.image.Bounds().Dy()/2
+}
+
+func (g *Gates) Image() *ebiten.Image {
+	return g.image
 }
 
 func (g *Gates) MoveToPoint(dest image.Point) {
@@ -96,9 +105,9 @@ func (g *Gates) MoveToPoint(dest image.Point) {
 	if r <= 0 {
 		return
 	}
-	
+
 	if r < g.Speed {
-		g.Translation(image.Point{dx,dy})
+		g.Translation(image.Point{dx, dy})
 		return
 	}
 
@@ -108,7 +117,7 @@ func (g *Gates) MoveToPoint(dest image.Point) {
 	x := int(g.Speed * cos)
 	y := int(g.Speed * sin)
 
-	g.Translation(image.Point{x,y})
+	g.Translation(image.Point{x, y})
 }
 
 // HitDecisionToPoint is decide wether a point is in this

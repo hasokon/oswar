@@ -29,7 +29,7 @@ func (ml *MouseEventListener) AddMouseClickEventHandler(m MouseClickEventHandler
 	ml.mouseClickEventHandlers = append(ml.mouseClickEventHandlers, m)
 }
 
-func (ml *MouseEventListener) Update() {
+func (ml *MouseEventListener) Update() error {
 	x, y := ebiten.CursorPosition()
 	me := MouseEvent{x, y}
 	switch {
@@ -38,4 +38,6 @@ func (ml *MouseEventListener) Update() {
 			handler.MouseClicked(me)
 		}
 	}
+
+	return nil
 }

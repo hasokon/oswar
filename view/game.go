@@ -15,10 +15,14 @@ type GameLayer struct {
 }
 
 // NewGameLayer create GameImage instance
-func NewGameLayer(screenWidth, screenHeight int) *GameLayer {
+func NewGameLayer(screenWidth, screenHeight int) (*GameLayer, error) {
 	c, _ := ebiten.NewImage(screenWidth, screenHeight, ebiten.FilterNearest)
 
-	gi := model.New(screenWidth, screenHeight)
+	gi, err := model.New(screenWidth, screenHeight)
+	if err != nil {
+		return nil, err
+	}
+
 	mm := controller.New()
 	mm.AddMouseClickEventHandler(gi)
 
@@ -26,25 +30,41 @@ func NewGameLayer(screenWidth, screenHeight int) *GameLayer {
 		canvas:       c,
 		images:       gi,
 		mouseManager: mm,
-	}
+	}, nil
 }
 
 // Draw re-draw images
 func (gl *GameLayer) Draw() {
 	gl.canvas.Fill(color.White)
 
+	gl.canvas.DrawImage(gl.images.BackGroundImage, nil)
+
+	li := gl.images.LinuxImage
+	liX := gl.images.CanvasWidth/2 - li.Dx()/2
+	liY := gl.images.CanvasHeight/2 - li.Dy()/2
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(liX), float64(liY))
+	gl.canvas.DrawImage(li.Image(), op)
+
 	for _, gates := range gl.images.GatesList {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(gates.DrawPoint.X), float64(gates.DrawPoint.Y))
-		op.ColorM.RotateHue(float64(gates.ID))
 
-		gl.canvas.DrawImage(gates.Image, op)
+		gl.canvas.DrawImage(gates.Image(), op)
 	}
 }
 
 func (gl *GameLayer) Update() error {
-	gl.mouseManager.Update()
-	gl.images.Update()
+	err := gl.mouseManager.Update()
+	if err != nil {
+		return err
+	}
+
+	err = gl.images.Update()
+	if err != nil {
+		return err
+	}
+
 	gl.Draw()
 	return nil
 }

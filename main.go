@@ -11,6 +11,6 @@ const (
 )
 
 func main() {
-	oswar := view.NewOswar(screenSizeWidth, screenSizeHeight)
+	oswar, _ := view.NewOswar(screenSizeWidth, screenSizeHeight)
 	ebiten.Run(oswar.GetUpdate(), screenSizeWidth, screenSizeHeight, 1, "Test")
 }
