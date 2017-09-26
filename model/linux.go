@@ -38,6 +38,10 @@ func (l *Linux) Image() *ebiten.Image {
 	return l.image
 }
 
+func (l *Linux) Decision() *image.Rectangle {
+	return l.decision
+}
+
 func (l *Linux) Dx() int {
 	return l.image.Bounds().Dx()
 }

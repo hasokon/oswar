@@ -55,6 +55,10 @@ func NewGates(x, y int) (*Gates, error) {
 	}, nil
 }
 
+func (g *Gates) Decision() *image.Rectangle {
+	return &g.decision
+}
+
 func (g *Gates) kill() {
 	g.killed = true
 }
