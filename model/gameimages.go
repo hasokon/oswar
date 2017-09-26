@@ -117,7 +117,7 @@ func (gi *GameImages) MouseClicked(e controller.MouseEvent) error {
 	for i := len(gi.GatesList) - 1; i >= 0; i-- {
 		gates := gi.GatesList[i]
 		if gates.HitDecisionToPoint(image.Point{e.X, e.Y}) {
-			gates.killSoon()
+			gates.kill()
 			return nil
 		}
 	}

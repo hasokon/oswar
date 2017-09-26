@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	defaultLimmit = 30
-	SpeedDefault  = 2
-	SpeedMiddle   = 3
-	SpeedHigh     = 4
+	defaultLimmit = 15
+
+	SpeedDefault = 2
+	SpeedMiddle  = 3
+	SpeedHigh    = 4
 )
 
 var (
@@ -77,7 +78,15 @@ func (g *Gates) IsDead() bool {
 func (g *Gates) UpdateImage() error {
 	if g.killed {
 		g.limmit--
-		g.image.Fill(color.RGBA{0x0, 0x0, 0xf0, uint8(0xff * g.limmit / defaultLimmit)})
+		width, height := g.image.Size()
+		newImg, _ := ebiten.NewImage(width, height, ebiten.FilterNearest)
+		newImg.Fill(color.Alpha{uint8(0xff * g.limmit / defaultLimmit)})
+
+		op := &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeSourceIn
+		newImg.DrawImage(g.image, op)
+
+		g.image = newImg
 	}
 	return nil
 }
