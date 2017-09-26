@@ -33,7 +33,7 @@ func New(canvasWidth, canvasHeight int) (*GameImages, error) {
 	c, _ := ebiten.NewImage(canvasWidth, canvasHeight, ebiten.FilterNearest)
 	c.Fill(color.White)
 
-	li, err := NewLinux()
+	li, err := NewLinux(canvasWidth/2, canvasHeight/2)
 	if err != nil {
 		return nil, err
 	}

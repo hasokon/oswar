@@ -10,11 +10,12 @@ import (
 )
 
 type Linux struct {
-	image    *ebiten.Image
-	decision *image.Rectangle
+	image     *ebiten.Image
+	decision  *image.Rectangle
+	DrawPoint *image.Point
 }
 
-func NewLinux() (*Linux, error) {
+func NewLinux(x, y int) (*Linux, error) {
 	_, img, err := ebitenutil.NewImageFromFile("resource/linux.png", ebiten.FilterNearest)
 	if err != nil {
 		return nil, err
@@ -29,8 +30,9 @@ func NewLinux() (*Linux, error) {
 	d := li.Bounds()
 
 	return &Linux{
-		image:    li,
-		decision: &d,
+		image:     li,
+		decision:  &d,
+		DrawPoint: &image.Point{x - li.Bounds().Dx()/2, y - li.Bounds().Dy()/2},
 	}, nil
 }
 
