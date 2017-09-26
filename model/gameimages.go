@@ -85,6 +85,8 @@ func (gi *GameImages) Update() error {
 	for _, gates := range gi.GatesList {
 		if gates.IsDead() {
 			gi.DeleteGatesByID(gates.ID)
+		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
+			gates.killSoon()
 		} else {
 			gates.UpdateImage()
 			gates.MoveToPoint(gi.CanvasCenter)

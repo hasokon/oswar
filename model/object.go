@@ -9,4 +9,6 @@ import (
 type Object interface {
 	Image() *ebiten.Image
 	Decision() *image.Rectangle
+	CenterX() int
+	CenterY() int
 }
