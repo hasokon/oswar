@@ -19,7 +19,8 @@ const (
 )
 
 var (
-	count int
+	count      int
+	gatesImage *ebiten.Image
 )
 
 // Gates is gates image class
@@ -35,9 +36,12 @@ type Gates struct {
 
 // NewGates create gates instance
 func NewGates(x, y int) (*Gates, error) {
-	gatesImage, _, err := ebitenutil.NewImageFromFile("resource/gates.png", ebiten.FilterNearest)
-	if err != nil {
-		return nil, err
+	if gatesImage == nil {
+		var err error
+		gatesImage, _, err = ebitenutil.NewImageFromFile("resource/gates.png", ebiten.FilterNearest)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	r := gatesImage.Bounds()
