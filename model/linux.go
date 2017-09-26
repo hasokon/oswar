@@ -27,13 +27,12 @@ func NewLinux(x, y int) (*Linux, error) {
 		return nil, err
 	}
 
-	d := li.Bounds()
+	dp := image.Point{x - li.Bounds().Dx()/2, y - li.Bounds().Dy()/2}
 
-	drawX := x - li.Bounds().Dx()/2
-	drawY := y - li.Bounds().Dy()/2
-	dp := image.Point{drawX, drawY}
-
-	d = d.Add(dp)
+	decisionDx := li.Bounds().Dx() / 2
+	decisionDy := li.Bounds().Dy() / 2
+	d := image.Rectangle{image.ZP, image.Point{decisionDx, decisionDy}}
+	d = d.Add(image.Point{x - decisionDx/2, y - decisionDy/2})
 
 	return &Linux{
 		image:     li,

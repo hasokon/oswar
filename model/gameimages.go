@@ -86,11 +86,10 @@ func (gi *GameImages) Update() error {
 		if gates.IsDead() {
 			gi.DeleteGatesByID(gates.ID)
 		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
-			gates.killSoon()
-		} else {
-			gates.UpdateImage()
-			gates.MoveToPoint(gi.CanvasCenter)
+			gates.Kill()
 		}
+		gates.UpdateImage()
+		gates.MoveToPoint(gi.CanvasCenter)
 	}
 	return nil
 }
@@ -117,7 +116,7 @@ func (gi *GameImages) MouseClicked(e controller.MouseEvent) error {
 	for i := len(gi.GatesList) - 1; i >= 0; i-- {
 		gates := gi.GatesList[i]
 		if gates.HitDecisionToPoint(image.Point{e.X, e.Y}) {
-			gates.kill()
+			gates.Kill()
 			return nil
 		}
 	}

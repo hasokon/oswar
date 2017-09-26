@@ -64,7 +64,11 @@ func (g *Gates) Decision() *image.Rectangle {
 	return &g.decision
 }
 
-func (g *Gates) kill() {
+func (g *Gates) Kill() {
+	g.killDefault()
+}
+
+func (g *Gates) killDefault() {
 	g.killed = true
 }
 
