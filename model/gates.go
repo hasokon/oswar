@@ -6,22 +6,51 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/nfnt/resize"
 
 	"github.com/hajimehoshi/ebiten"
 )
 
+type GatesType int
+
+const (
+	GatesTypeVista GatesType = 0
+	GatesTypeXP    GatesType = 1
+	GatesType10    GatesType = 2
+)
+
 const (
 	defaultLimmit = 15
+)
 
-	SpeedDefault = 2
-	SpeedMiddle  = 3
-	SpeedHigh    = 4
+const (
+	SpeedLow    = 2
+	SpeedMiddle = 3
+	SpeedHigh   = 4
 )
 
 var (
 	count      int
 	gatesImage *ebiten.Image
+	XPImage    *ebiten.Image
+	VistaImage *ebiten.Image
+	Win10Image *ebiten.Image
 )
+
+func GetLogoImage(path string) (*ebiten.Image, error) {
+	_, img, err := ebitenutil.NewImageFromFile(path, ebiten.FilterNearest)
+	if err != nil {
+		return nil, err
+	}
+	img = resize.Resize(35, 0, img, resize.Lanczos3)
+
+	li, err := ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+	if err != nil {
+		return nil, err
+	}
+
+	return li, nil
+}
 
 // Gates is gates image class
 type Gates struct {
@@ -32,13 +61,32 @@ type Gates struct {
 	Speed     float64
 	limmit    int
 	killed    bool
+	GatesType GatesType
+	logoImage *ebiten.Image
 }
 
 // NewGates create gates instance
-func NewGates(x, y int) (*Gates, error) {
+func NewGates(x, y int, t GatesType) (*Gates, error) {
+	var err error
 	if gatesImage == nil {
-		var err error
 		gatesImage, _, err = ebitenutil.NewImageFromFile("resource/gates.png", ebiten.FilterNearest)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if XPImage == nil {
+		VistaImage, err = GetLogoImage("resource/vista.png")
+		if err != nil {
+			return nil, err
+		}
+
+		XPImage, err = GetLogoImage("resource/xp.png")
+		if err != nil {
+			return nil, err
+		}
+
+		Win10Image, err = GetLogoImage("resource/win10.png")
 		if err != nil {
 			return nil, err
 		}
@@ -49,14 +97,43 @@ func NewGates(x, y int) (*Gates, error) {
 
 	count++
 
+	var s float64
+	var li *ebiten.Image
+	switch t {
+	case GatesTypeVista:
+		s = SpeedLow
+		li = VistaImage
+	case GatesType10:
+		s = SpeedMiddle
+		li = Win10Image
+	case GatesTypeXP:
+		s = SpeedHigh
+		li = XPImage
+	default:
+		s = SpeedLow
+		li = VistaImage
+	}
+
+	width, height := gatesImage.Size()
+	lwidth, _ := li.Size()
+	newImg, _ := ebiten.NewImage(width+lwidth, height, ebiten.FilterNearest)
+
+	newImg.DrawImage(gatesImage, nil)
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(width), 0)
+	newImg.DrawImage(li, op)
+
 	return &Gates{
-		image:     gatesImage,
+		image:     newImg,
 		DrawPoint: image.Point{x, y},
 		decision:  gatesDecisoin.Add(image.Point{x, y}),
 		ID:        count,
 		limmit:    defaultLimmit,
 		killed:    false,
-		Speed:     SpeedDefault,
+		Speed:     s,
+		GatesType: t,
+		logoImage: li,
 	}, nil
 }
 
@@ -86,15 +163,6 @@ func (g *Gates) IsDead() bool {
 func (g *Gates) UpdateImage() error {
 	if g.killed {
 		g.limmit--
-		width, height := g.image.Size()
-		newImg, _ := ebiten.NewImage(width, height, ebiten.FilterNearest)
-		newImg.Fill(color.Alpha{uint8(0xff * g.limmit / defaultLimmit)})
-
-		op := &ebiten.DrawImageOptions{}
-		op.CompositeMode = ebiten.CompositeModeSourceIn
-		newImg.DrawImage(g.image, op)
-
-		g.image = newImg
 	}
 	return nil
 }
@@ -114,7 +182,15 @@ func (g *Gates) CenterY() int {
 }
 
 func (g *Gates) Image() *ebiten.Image {
-	return g.image
+	width, height := g.image.Size()
+	maskImg, _ := ebiten.NewImage(width, height, ebiten.FilterNearest)
+	maskImg.Fill(color.Alpha{uint8(0xff * g.limmit / defaultLimmit)})
+
+	op := &ebiten.DrawImageOptions{}
+	op.CompositeMode = ebiten.CompositeModeSourceIn
+	maskImg.DrawImage(g.image, op)
+
+	return maskImg
 }
 
 func (g *Gates) MoveToPoint(dest image.Point) {

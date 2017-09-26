@@ -102,7 +102,18 @@ func (gi *GameImages) NewGatesInCircle() error {
 	x := gi.CanvasCenter.X + int(float64(r)*math.Cos(theta_rad))
 	y := gi.CanvasCenter.Y + int(float64(r)*math.Sin(theta_rad))
 
-	ng, err := NewGates(x, y)
+	p := rand.Intn(100) + 1
+	var gtype GatesType
+	switch {
+	case p <= 85:
+		gtype = GatesTypeVista
+	case p <= 95:
+		gtype = GatesType10
+	default:
+		gtype = GatesTypeXP
+	}
+
+	ng, err := NewGates(x, y, gtype)
 	if err != nil {
 		return err
 	}
