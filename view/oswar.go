@@ -27,6 +27,10 @@ func NewOswar(screenWidth, screenHeight int) (*Oswar, error) {
 // GetUpdate make closer for ebiten.Run()
 func (o *Oswar) GetUpdate() func(*ebiten.Image) error {
 	return func(screen *ebiten.Image) error {
+		if ebiten.IsRunningSlowly() {
+			return nil
+		}
+
 		err := o.gameLayer.Update()
 		if err != nil {
 			return err

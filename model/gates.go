@@ -55,13 +55,13 @@ func GetLogoImage(path string) (*ebiten.Image, error) {
 // Gates is gates image class
 type Gates struct {
 	image     *ebiten.Image
-	DrawPoint image.Point //Left Up
+	drawPoint image.Point //Left Up
 	decision  image.Rectangle
-	ID        int
-	Speed     float64
+	id        int
+	speed     float64
 	limmit    int
 	killed    bool
-	GatesType GatesType
+	gatesType GatesType
 	logoImage *ebiten.Image
 }
 
@@ -114,27 +114,31 @@ func NewGates(x, y int, t GatesType) (*Gates, error) {
 		li = VistaImage
 	}
 
-	width, height := gatesImage.Size()
-	lwidth, _ := li.Size()
-	newImg, _ := ebiten.NewImage(width+lwidth, height, ebiten.FilterNearest)
+	// width, height := gatesImage.Size()
+	// lwidth, _ := li.Size()
+	// newImg, _ := ebiten.NewImage(width+lwidth, height, ebiten.FilterNearest)
 
-	newImg.DrawImage(gatesImage, nil)
+	// newImg.DrawImage(gatesImage, nil)
 
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(width), 0)
-	newImg.DrawImage(li, op)
+	// op := &ebiten.DrawImageOptions{}
+	// op.GeoM.Translate(float64(width), 0)
+	// newImg.DrawImage(li, op)
 
 	return &Gates{
-		image:     newImg,
-		DrawPoint: image.Point{x, y},
+		image:     gatesImage,
+		drawPoint: image.Point{x, y},
 		decision:  gatesDecisoin.Add(image.Point{x, y}),
-		ID:        count,
+		id:        count,
 		limmit:    defaultLimmit,
 		killed:    false,
-		Speed:     s,
-		GatesType: t,
+		speed:     s,
+		gatesType: t,
 		logoImage: li,
 	}, nil
+}
+
+func (g *Gates) ID() int {
+	return g.id
 }
 
 func (g *Gates) Decision() *image.Rectangle {
@@ -167,18 +171,24 @@ func (g *Gates) UpdateImage() error {
 	return nil
 }
 
+func (g *Gates) Option() *ebiten.DrawImageOptions {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(g.drawPoint.X),float64(g.drawPoint.Y))
+	return op
+}
+
 // Translation updates coodinates
-func (g *Gates) Translation(p image.Point) {
-	g.DrawPoint = g.DrawPoint.Add(p)
+func (g *Gates) Translate(p image.Point) {
+	g.drawPoint = g.drawPoint.Add(p)
 	g.decision = g.decision.Add(p)
 }
 
 func (g *Gates) CenterX() int {
-	return g.DrawPoint.X + g.image.Bounds().Dx()/2
+	return g.drawPoint.X + g.image.Bounds().Dx()/2
 }
 
 func (g *Gates) CenterY() int {
-	return g.DrawPoint.Y + g.image.Bounds().Dy()/2
+	return g.drawPoint.Y + g.image.Bounds().Dy()/2
 }
 
 func (g *Gates) Image() *ebiten.Image {
@@ -203,18 +213,18 @@ func (g *Gates) MoveToPoint(dest image.Point) {
 		return
 	}
 
-	if r < g.Speed {
-		g.Translation(image.Point{dx, dy})
+	if r < g.speed {
+		g.Translate(image.Point{dx, dy})
 		return
 	}
 
 	sin := float64(dy) / r
 	cos := float64(dx) / r
 
-	x := int(g.Speed * cos)
-	y := int(g.Speed * sin)
+	x := int(g.speed * cos)
+	y := int(g.speed * sin)
 
-	g.Translation(image.Point{x, y})
+	g.Translate(image.Point{x, y})
 }
 
 // HitDecisionToPoint is decide wether a point is in this

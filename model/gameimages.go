@@ -61,7 +61,7 @@ func New(canvasWidth, canvasHeight int) (*GameImages, error) {
 func (gi *GameImages) DeleteGatesByID(id int) {
 	newlist := make([]*Gates, 0)
 	for _, gates := range gi.GatesList {
-		if gates.ID != id {
+		if gates.ID() != id {
 			newlist = append(newlist, gates)
 		}
 	}
@@ -84,7 +84,7 @@ func (gi *GameImages) Update() error {
 	// Delete And Update Gates
 	for _, gates := range gi.GatesList {
 		if gates.IsDead() {
-			gi.DeleteGatesByID(gates.ID)
+			gi.DeleteGatesByID(gates.ID())
 		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
 			gates.Kill()
 		}

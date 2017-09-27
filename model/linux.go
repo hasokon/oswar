@@ -12,7 +12,7 @@ import (
 type Linux struct {
 	image     *ebiten.Image
 	decision  *image.Rectangle
-	DrawPoint *image.Point
+	drawPoint *image.Point
 }
 
 func NewLinux(x, y int) (*Linux, error) {
@@ -37,8 +37,18 @@ func NewLinux(x, y int) (*Linux, error) {
 	return &Linux{
 		image:     li,
 		decision:  &d,
-		DrawPoint: &dp,
+		drawPoint: &dp,
 	}, nil
+}
+
+func (l *Linux) ID() int {
+	return 0
+}
+
+func (l *Linux) Option() *ebiten.DrawImageOptions {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(l.drawPoint.X), float64(l.drawPoint.Y))
+	return op
 }
 
 func (l *Linux) Image() *ebiten.Image {
@@ -58,11 +68,11 @@ func (l *Linux) Dy() int {
 }
 
 func (l *Linux) CenterX() int {
-	return l.DrawPoint.X + l.image.Bounds().Dx()
+	return l.drawPoint.X + l.image.Bounds().Dx()
 }
 
 func (l *Linux) CenterY() int {
-	return l.DrawPoint.Y + l.image.Bounds().Dy()
+	return l.drawPoint.Y + l.image.Bounds().Dy()
 }
 
 func abs(x int) int {

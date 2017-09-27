@@ -11,4 +11,6 @@ type Object interface {
 	Decision() *image.Rectangle
 	CenterX() int
 	CenterY() int
+	Option() *ebiten.DrawImageOptions
+	ID() int
 }

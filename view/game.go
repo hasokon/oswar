@@ -40,15 +40,10 @@ func (gl *GameLayer) Draw() {
 	gl.canvas.DrawImage(gl.images.BackGroundImage, nil)
 
 	li := gl.images.LinuxImage
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(li.DrawPoint.X), float64(li.DrawPoint.Y))
-	gl.canvas.DrawImage(li.Image(), op)
+	gl.canvas.DrawImage(li.Image(), li.Option())
 
 	for _, gates := range gl.images.GatesList {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(gates.DrawPoint.X), float64(gates.DrawPoint.Y))
-
-		gl.canvas.DrawImage(gates.Image(), op)
+		gl.canvas.DrawImage(gates.Image(), gates.Option())
 	}
 }
 
