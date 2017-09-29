@@ -3,7 +3,6 @@ package model
 import (
 	"image"
 	"image/color"
-	"math"
 	"math/rand"
 	"time"
 
@@ -19,13 +18,17 @@ const (
 // GameImages have all image for this game
 type GameImages struct {
 	CanvasImage        *ebiten.Image
-	GatesList          []*Gates
+	gatesList          *GatesList
 	LinuxImage         *Linux
 	BackGroundImage    *ebiten.Image
 	CanvasWidth        int
 	CanvasHeight       int
 	CanvasCenter       image.Point
 	gatesGenerateCount int
+}
+
+func (gi *GameImages) GetGatesList() []*Gates {
+	return gi.gatesList.GetList()
 }
 
 // New create GameImages instance
@@ -47,7 +50,7 @@ func New(canvasWidth, canvasHeight int) (*GameImages, error) {
 
 	return &GameImages{
 		CanvasImage:        c,
-		GatesList:          make([]*Gates, 0),
+		gatesList:          NewGatesList(),
 		LinuxImage:         li,
 		BackGroundImage:    bgi,
 		CanvasWidth:        canvasWidth,
@@ -57,22 +60,11 @@ func New(canvasWidth, canvasHeight int) (*GameImages, error) {
 	}, nil
 }
 
-// DeleteGatesByID is to delete a Gates in GatesList by ID
-func (gi *GameImages) DeleteGatesByID(id int) {
-	newlist := make([]*Gates, 0)
-	for _, gates := range gi.GatesList {
-		if gates.ID() != id {
-			newlist = append(newlist, gates)
-		}
-	}
-	gi.GatesList = newlist
-}
-
 // Update updates all images by time
 func (gi *GameImages) Update() error {
 	// Generate New Gates
 	if gi.gatesGenerateCount == gatesGenerateTime {
-		err := gi.NewGatesInCircle()
+		err := gi.gatesList.NewGatesInCircle(gi.CanvasWidth, gi.CanvasHeight, gi.CanvasCenter)
 		if err != nil {
 			return err
 		}
@@ -82,9 +74,9 @@ func (gi *GameImages) Update() error {
 	}
 
 	// Delete And Update Gates
-	for _, gates := range gi.GatesList {
+	for _, gates := range gi.gatesList.GetList() {
 		if gates.IsDead() {
-			gi.DeleteGatesByID(gates.ID())
+			gi.gatesList.DeleteGatesByID(gates.ID())
 		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
 			gates.Kill()
 		}
@@ -94,38 +86,11 @@ func (gi *GameImages) Update() error {
 	return nil
 }
 
-func (gi *GameImages) NewGatesInCircle() error {
-	r := gi.CanvasWidth/2 + (rand.Intn(40) + 1)
-	theta := rand.Intn(360) + 1
-
-	theta_rad := math.Pi * float64(theta) / 180
-	x := gi.CanvasCenter.X + int(float64(r)*math.Cos(theta_rad))
-	y := gi.CanvasCenter.Y + int(float64(r)*math.Sin(theta_rad))
-
-	p := rand.Intn(100) + 1
-	var gtype GatesType
-	switch {
-	case p <= 85:
-		gtype = GatesTypeVista
-	case p <= 95:
-		gtype = GatesType10
-	default:
-		gtype = GatesTypeXP
-	}
-
-	ng, err := NewGates(x, y, gtype)
-	if err != nil {
-		return err
-	}
-
-	gi.GatesList = append(gi.GatesList, ng)
-	return nil
-}
-
 // MouseClicked is execute by clicking mouse left button
 func (gi *GameImages) MouseClicked(e controller.MouseEvent) error {
-	for i := len(gi.GatesList) - 1; i >= 0; i-- {
-		gates := gi.GatesList[i]
+	gl := gi.gatesList.GetList()
+	for i := len(gl) - 1; i >= 0; i-- {
+		gates := gl[i]
 		if gates.HitDecisionToPoint(image.Point{e.X, e.Y}) {
 			gates.Kill()
 			return nil

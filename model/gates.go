@@ -62,7 +62,6 @@ type Gates struct {
 	limmit    int
 	killed    bool
 	gatesType GatesType
-	logoImage *ebiten.Image
 }
 
 // NewGates create gates instance
@@ -114,18 +113,18 @@ func NewGates(x, y int, t GatesType) (*Gates, error) {
 		li = VistaImage
 	}
 
-	// width, height := gatesImage.Size()
-	// lwidth, _ := li.Size()
-	// newImg, _ := ebiten.NewImage(width+lwidth, height, ebiten.FilterNearest)
+	width, height := gatesImage.Size()
+	lwidth, _ := li.Size()
+	newImg, _ := ebiten.NewImage(width+lwidth, height, ebiten.FilterNearest)
 
-	// newImg.DrawImage(gatesImage, nil)
+	newImg.DrawImage(gatesImage, nil)
 
-	// op := &ebiten.DrawImageOptions{}
-	// op.GeoM.Translate(float64(width), 0)
-	// newImg.DrawImage(li, op)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(width), 0)
+	newImg.DrawImage(li, op)
 
 	return &Gates{
-		image:     gatesImage,
+		image:     newImg,
 		drawPoint: image.Point{x, y},
 		decision:  gatesDecisoin.Add(image.Point{x, y}),
 		id:        count,
@@ -133,8 +132,11 @@ func NewGates(x, y int, t GatesType) (*Gates, error) {
 		killed:    false,
 		speed:     s,
 		gatesType: t,
-		logoImage: li,
 	}, nil
+}
+
+func (g *Gates) Type() GatesType {
+	return g.gatesType
 }
 
 func (g *Gates) ID() int {
@@ -173,14 +175,22 @@ func (g *Gates) UpdateImage() error {
 
 func (g *Gates) Option() *ebiten.DrawImageOptions {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(g.drawPoint.X),float64(g.drawPoint.Y))
+	op.GeoM.Translate(float64(g.drawPoint.X), float64(g.drawPoint.Y))
 	return op
 }
 
-// Translation updates coodinates
+// Translate updates coodinates
 func (g *Gates) Translate(p image.Point) {
 	g.drawPoint = g.drawPoint.Add(p)
 	g.decision = g.decision.Add(p)
+}
+
+func (g *Gates) Reset(x, y int) {
+	g.drawPoint = image.Point{x, y}
+	g.decision = gatesImage.Bounds().Add(g.drawPoint)
+
+	g.killed = false
+	g.limmit = defaultLimmit
 }
 
 func (g *Gates) CenterX() int {
@@ -192,6 +202,10 @@ func (g *Gates) CenterY() int {
 }
 
 func (g *Gates) Image() *ebiten.Image {
+	if !g.killed {
+		return g.image
+	}
+
 	width, height := g.image.Size()
 	maskImg, _ := ebiten.NewImage(width, height, ebiten.FilterNearest)
 	maskImg.Fill(color.Alpha{uint8(0xff * g.limmit / defaultLimmit)})

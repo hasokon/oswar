@@ -42,7 +42,7 @@ func (gl *GameLayer) Draw() {
 	li := gl.images.LinuxImage
 	gl.canvas.DrawImage(li.Image(), li.Option())
 
-	for _, gates := range gl.images.GatesList {
+	for _, gates := range gl.images.GetGatesList() {
 		gl.canvas.DrawImage(gates.Image(), gates.Option())
 	}
 }
