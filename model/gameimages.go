@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	gatesGenerateTime int = 60
+	gatesGenerateTime int = 1
 )
 
 // GameImages have all image for this game
