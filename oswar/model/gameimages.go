@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/hasokon/oswar/oswar"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hasokon/oswar/oswar"
 	"github.com/hasokon/oswar/oswar/controller"
 )
 
@@ -26,6 +26,10 @@ type GameImages struct {
 	CanvasHeight       int
 	CanvasCenter       image.Point
 	gatesGenerateCount int
+}
+
+func (gi *GameImages) Reset() {
+	gi.gatesList.Reset()
 }
 
 func (gi *GameImages) GetGatesList() []*Gates {
@@ -80,7 +84,7 @@ func (gi *GameImages) Update() error {
 			gi.gatesList.DeleteGatesByID(gates.ID())
 		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
 			oswar.SetState(oswar.GameOver)
-			gates.Kill()
+			gi.Reset()
 		}
 		gates.UpdateImage()
 		gates.MoveToPoint(gi.CanvasCenter)

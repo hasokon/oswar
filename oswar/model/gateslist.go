@@ -6,6 +6,10 @@ import (
 	"math/rand"
 )
 
+const (
+	defaultSliceLength = 32
+)
+
 type GatesList struct {
 	usingGatesList []*Gates
 	xpGatesList    []*Gates
@@ -15,11 +19,26 @@ type GatesList struct {
 
 func NewGatesList() *GatesList {
 	return &GatesList{
-		usingGatesList: make([]*Gates, 0),
-		xpGatesList:    make([]*Gates, 0),
-		vistaGatesList: make([]*Gates, 0),
-		win10GatesList: make([]*Gates, 0),
+		usingGatesList: make([]*Gates, 0, defaultSliceLength),
+		xpGatesList:    make([]*Gates, 0, defaultSliceLength),
+		vistaGatesList: make([]*Gates, 0, defaultSliceLength),
+		win10GatesList: make([]*Gates, 0, defaultSliceLength),
 	}
+}
+
+func (gl *GatesList) Reset() {
+	for _, gates := range gl.usingGatesList {
+		switch gates.Type() {
+		case GatesTypeXP:
+			gl.xpGatesList = append(gl.xpGatesList, gates)
+		case GatesTypeVista:
+			gl.vistaGatesList = append(gl.vistaGatesList, gates)
+		case GatesType10:
+			gl.win10GatesList = append(gl.win10GatesList, gates)
+		}
+	}
+
+	gl.usingGatesList = make([]*Gates, 0, defaultSliceLength)
 }
 
 func (gl *GatesList) GetList() []*Gates {
@@ -28,7 +47,7 @@ func (gl *GatesList) GetList() []*Gates {
 
 // DeleteGatesByID is to delete a Gates in GatesList by ID
 func (gl *GatesList) DeleteGatesByID(id int) {
-	newlist := make([]*Gates, 0)
+	newlist := make([]*Gates, 0, defaultSliceLength)
 	for _, gates := range gl.usingGatesList {
 		if gates.ID() != id {
 			newlist = append(newlist, gates)
@@ -41,9 +60,6 @@ func (gl *GatesList) DeleteGatesByID(id int) {
 			case GatesType10:
 				gl.win10GatesList = append(gl.win10GatesList, gates)
 			}
-
-			//fmt.Printf("Gates(%d) is Delete\n", gates.Type())
-			//fmt.Printf("%d, %d, %d\n", len(gl.vistaGatesList), len(gl.xpGatesList), len(gl.win10GatesList))
 		}
 	}
 	gl.usingGatesList = newlist

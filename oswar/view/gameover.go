@@ -2,28 +2,39 @@ package view
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hasokon/oswar/oswar/controller"
+	"github.com/hasokon/oswar/oswar/model"
 )
 
 type GameOverLayer struct {
-	backgroundImage	*ebiten.Image
+	images       *model.GameOverImages
+	mouseManager *controller.MouseEventListener
 }
 
 func NewGameOverLayer() (*GameOverLayer, error) {
-	bgi, _, err := ebitenutil.NewImageFromFile("resource/gameover.png", ebiten.FilterNearest)
+	imgs, err := model.NewGameOverImages()
 	if err != nil {
 		return nil, err
 	}
 
-	return &GameOverLayer {
-		backgroundImage: bgi,
+	mm := controller.New()
+	mm.AddMouseClickEventHandler(imgs)
+
+	return &GameOverLayer{
+		images:       imgs,
+		mouseManager: mm,
 	}, nil
 }
 
 func (gol *GameOverLayer) Update() error {
+	err := gol.mouseManager.Update()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (gol *GameOverLayer) Canvas() *ebiten.Image {
-	return gol.backgroundImage
+	return gol.images.BackgroundImage
 }
