@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/hasokon/oswar/oswar"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hasokon/oswar/oswar/controller"
@@ -78,6 +79,7 @@ func (gi *GameImages) Update() error {
 		if gates.IsDead() {
 			gi.gatesList.DeleteGatesByID(gates.ID())
 		} else if hit, _ := gi.LinuxImage.HitDecisionToObject(gates); hit {
+			oswar.SetState(oswar.GameOver)
 			gates.Kill()
 		}
 		gates.UpdateImage()

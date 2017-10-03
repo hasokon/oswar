@@ -1,19 +1,12 @@
 package oswar
 
-import (
-	"github.com/hasokon/oswar/oswar/view"
-	"fmt"
-
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+const (
+	IsPlaying = iota
+	GameOver
 )
 
 const (
-	isPlaying = iota
-)
-
-const (
-	defaultState = isPlaying
+	defaultState = IsPlaying
 )
 
 const (
@@ -25,6 +18,10 @@ var (
 	state = defaultState
 )
 
+func SetState(s int) {
+	state = s
+}
+
 func GetState() int {
 	return state
 }
@@ -35,20 +32,4 @@ func GetScreenWidth() int {
 
 func GetScreenHeight() int {
 	return screenSizeHeight
-}
-
-func Update() func(*ebiten.Image) error {
-	o, _ := view.NewOswar(screenSizeWidth, screenSizeHeight)
-
-	return func(screen *ebiten.Image) error {
-		if ebiten.IsRunningSlowly() {
-			return nil
-		}
-
-		o.Update(screen)
-
-		x, y := ebiten.CursorPosition()
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS : %0.2f\n(%d, %d)", ebiten.CurrentFPS(), x, y))
-		return nil
-	}
 }
