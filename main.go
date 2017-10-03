@@ -1,16 +1,10 @@
 package main
 
 import (
+	"github.com/hasokon/oswar/oswar"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hasokon/oswar/view"
-)
-
-const (
-	screenSizeWidth  int = 640
-	screenSizeHeight int = 480
 )
 
 func main() {
-	oswar, _ := view.NewOswar(screenSizeWidth, screenSizeHeight)
-	ebiten.Run(oswar.GetUpdate(), screenSizeWidth, screenSizeHeight, 1, "OS War")
+	ebiten.Run(oswar.Update(), oswar.GetScreenWidth(), oswar.GetScreenHeight(), 1, "OS War")
 }
